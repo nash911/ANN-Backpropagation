@@ -1,6 +1,6 @@
 /********************************************************************************************/
 /*                                                                                          */
-/*   MLP-Backpropagation: A C++ implementation of Multi-Layer Perceptron (MLP)              */ 
+/*   ANN-Backpropagation: A C++ implementation of Artificial Neural Network (ANN)           */
 /*                        and backpropagation algorithm for classification                  */
 /*                                                                                          */
 /*   N E U R A L   N E T W O R K   C L A S S   H E A D E R                                  */
@@ -24,7 +24,9 @@
 #include<math.h>
 #include "armadillo"
 
-#define DELTA 0.0001
+#define ALPHA 0.3
+#define LAMDA 0.0
+#define LEARNING_CURVE_DELTA 0.0001
 
 using namespace std;
 using namespace arma;
@@ -34,18 +36,26 @@ class NeuralNetwork{
 public:
     NeuralNetwork(const unsigned int, const vector<unsigned int>, const unsigned int);
 
+    void set_alpha(const double);
+    void set_lamda(const double);
+    double alpha(void) const;
+    double lamda(void) const;
+
     vector<unsigned int> networkArchitecture(void) const;
     vec Layer(const unsigned int) const;
     void printTheta(void) const;
-    //void setTheta(void);
 
     vec activation(const vec, const unsigned int);
     vec sigmoid(const vec);
-    vec h(const vec);
-    double cost(const mat, const mat);
-    void gradientdescent(const mat, const mat);
-    vector<mat> backpropagate(const mat, const mat);
-    vec error(const vec, const unsigned int);
+    vec h_Theta(const vec);
+    double cost(const vector<mat>, const mat, const mat);
+    void train(const mat, const mat);
+    vector<mat> gradientdescent(vector<mat>, const vector<mat>);
+    vector<mat> backpropagate(const vector<mat>, const mat, const mat);
+    vec error(const mat, const vec, const unsigned int);
+
+    void gradientCheck(const vector<mat>, const vector<mat>, const mat, const mat);
+    vector<mat> numericalGradient(const vector<mat>, const mat, const mat);
 
 
 private:

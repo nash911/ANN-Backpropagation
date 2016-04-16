@@ -46,7 +46,8 @@ int main(int argc, char* argv[])
 
     NeuralNetwork n(d.N(), hidLayer, d.K());
 
-    n.gradientdescent(d.X(), d.Y());
+    //n.gradientdescent(d.X(), d.Y());
+    n.train(d.X(), d.Y());
 
     cout <<endl << "Exiting Successfully" << endl;
 

@@ -1,6 +1,6 @@
 /********************************************************************************************/
 /*                                                                                          */
-/*   MLP-Backpropagation: A C++ implementation of Multi-Layer Perceptron (MLP)              */ 
+/*   ANN-Backpropagation: A C++ implementation of Artificial Neural Network (ANN)           */
 /*                        and backpropagation algorithm for classification                  */
 /*                                                                                          */
 /*   D A T A   S E T   C L A S S   H E A D E R                                              */
@@ -24,13 +24,16 @@
 #include<math.h>
 #include "armadillo"
 
+#define TRAINING_SIZE 70.0
+#define TEST_SIZE 30.0
+
 using namespace std;
 using namespace arma;
 
 class Data
 {
 public:
-    Data(const char*);
+    Data(const char* fileName, const double trainPercent=TRAINING_SIZE, const double testPercent=TEST_SIZE);
     unsigned int attributeSize(const char* const) const;
     unsigned int instanceSize(const char* const) const;
     unsigned int classSize(const char* const, const unsigned int, const unsigned int) const;
@@ -39,7 +42,6 @@ public:
     void extractX(const char* const, const unsigned int, const unsigned int);
     vec extractY(const char* const, const unsigned int, const unsigned int) const;
     void createYMat(const char* const, const unsigned int, const unsigned int);
-
 
     unsigned int M() const;
     unsigned int N() const;
