@@ -22,11 +22,12 @@
 /// Initializes learning rate parameter 𝛼 and regularization parameter λ to defaults.
 /// Creates and randomly initializes matrices Θ⁽l⁾ ∀ l = 1,2,...,(L-1).
 /// @param inputNeurons Number of neurons in the input layer.
-/// @param hiddenLayers Number of hidded laayers, and hidden neurons in each hidden layer.
+/// @param hiddenLayers Number of hidded layers, and hidden neurons in each hidden layer.
 /// @param outputNeurons Number of neurons in the output layer.
 
 NeuralNetwork::NeuralNetwork(const unsigned int inputNeurons, const vector<unsigned int> hiddenLayers, const unsigned int outputNeurons)
 {
+    //--Default hyper-parameters values--//
     d_alpha = ALPHA;
     d_lamda = LAMDA;
 
@@ -43,12 +44,13 @@ NeuralNetwork::NeuralNetwork(const unsigned int inputNeurons, const vector<unsig
     unsigned int cols = 0;
     unsigned int layers = networkArchitecture().size();
 
+    cout << endl << "Weight matrices dimensions:" << endl;
     for(unsigned int l = 0; l < (layers - 1); l++)
     {
         rows = networkArchitecture()[l+1];
         cols = networkArchitecture()[l]+1;
 
-        cout << endl << "Layer " << l+1 <<  ":    Rows: " << rows << "    Cols: " << cols << endl;
+        cout << endl << "Layer " << l+1 <<  " weight matrix:    Rows: " << rows << "    Cols: " << cols << endl;
 
         //--Random initialization of Theta matrix Θ⁽l⁾--//
         mat theta(rows, cols, fill::randu);
@@ -122,7 +124,7 @@ vector<unsigned int> NeuralNetwork::networkArchitecture(void) const
 }
 
 
-// vector<unsigned int> networkArchitecture(void) const
+// vec Layer(const unsigned int) const
 
 /// Returns a vector of activations a⁽l⁾, where l=1,2,...,L, of layer l.
 /// The activations are from the most recent forward propagation of the network.
@@ -311,8 +313,8 @@ double NeuralNetwork::cost(const vector<mat> Theta, const mat X, const mat Y)
     for(unsigned int l=0; l<Theta.size(); l++)
     {
         theta = Theta[l].cols(1,Theta[l].n_cols-1);
-        regu = regu + sum(sum(theta % theta));
         //--Note: '%' is element-wise multiplication in Armadillo--//
+        regu = regu + sum(sum(theta % theta));
     }
 
     //--       1             λ                  --//
@@ -326,7 +328,7 @@ double NeuralNetwork::cost(const vector<mat> Theta, const mat X, const mat Y)
 
 // void train(const mat, const mat)
 
-/// Trains the neural network through backpropagation and gradient descent, given input matric X and k-class label matric Y.
+/// Trains the neural network through backpropagation and gradient descent, given input matric X and k-class-label matric Y.
 /// @param X Input feature matrix X.
 /// @param Y Input label matrix Y.
 
@@ -360,12 +362,14 @@ void NeuralNetwork::train(const mat X, const mat Y)
         //--Cost function graph file update--//
         costGraph << it++ << " " << c << endl;
 
+        //--Computer partial derivatives of the cost function J(Θ) w.r.t Θ⁽l⁾_ij ∀ l,i,j--//
         //--      ∂          --//
         //--  --------- J(Θ) --//
         //--  ∂ Θ⁽l⁾_ij      --//
         partDeriv_cost = backpropagate(d_Theta, X, Y);
 
-        //--Computer gradient of Θ⁽l⁾_ij ∀ l,i,j, w.r.t J(Θ), and compair it with gradients calculated by backprop to ensure the code is bug-free--//
+        //--Computer gradient of Θ⁽l⁾_ij ∀ l,i,j, w.r.t J(Θ), and compair it with gradients calculated--//
+        //--by backprop to ensure the code is bug-free--//
         //gradientCheck(d_Theta, partDeriv_cost, X, Y);
 
 
@@ -461,6 +465,7 @@ vector<mat> NeuralNetwork::backpropagate(const vector<mat> Theta, const mat X, c
         }
     }
 
+    //--Normalize over batch size and regularize--//
     vector<mat> Theta_clone = Theta;
     for(unsigned int l=0; l<L; l++)
     {
@@ -501,6 +506,7 @@ vec NeuralNetwork::error(const mat Theta, const vec input, const unsigned int l)
     //--δ⁽l⁾ where l=L--//
     if(l == networkArchitecture().size() - 1)
     {
+        //--δ⁽L⁾ = a⁽L⁾ - y⁽i⁾--//
         delta_l = a_l - input;
         return delta_l;
     }
@@ -514,7 +520,7 @@ vec NeuralNetwork::error(const mat Theta, const vec input, const unsigned int l)
         delta_l = (Theta.t() * input) % (a_l % (one - a_l));
 
         //--Ommiting δ⁽l⁾_0, which is the error term of the bias node--//
-        return delta_l.rows(1,delta_l.n_rows-1);
+        return delta_l.rows(1, delta_l.n_rows-1);
     }
 }
 
