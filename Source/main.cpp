@@ -1,6 +1,9 @@
 #include "data.h"
 #include "neural_network.h"
 
+#define TRAINING_SIZE 70.0
+#define TEST_SIZE 30.0
+
 int main(int argc, char* argv[])
 {
     //--Initializing random seed--//
@@ -38,7 +41,7 @@ int main(int argc, char* argv[])
     }
     dataFile.close();
 
-    Data d(dataFileName);
+    Data d(dataFileName, TRAINING_SIZE, TEST_SIZE);
 
     vector<unsigned int> hidLayer;
     hidLayer.push_back(d.N());

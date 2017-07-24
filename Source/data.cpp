@@ -38,12 +38,33 @@ Data::Data(const char* fileName, const double trainPercent, const double testPer
         exit(1);
     }
 
+    if(trainPercent <= 0.0 || testPercent < 0.0)
+    {
+      cerr << "ANN-Backpropagation Error: Data class." << endl
+           << "DataSet(const char*, const double, const double) constructor." << endl
+             << "Training set = " << trainPercent << "% has to be > 0% and Test set = "<< testPercent << "% has to be >= 0%."
+             << endl;
+
+        exit(1);
+    }
+
+    if(trainPercent + testPercent != 100.0)
+    {
+      cerr << "ANN-Backpropagation Error: Data class." << endl
+           << "DataSet(const char*, const double, const double) constructor." << endl
+             << "Training set = " << trainPercent << " + Test set = "<< testPercent << " has to be equal to 100%."
+             << endl;
+
+        exit(1);
+    }
+
     //--Extract no. of instances(m), attributes(n) and classes(k) in the data set on file--//
     unsigned int attSize = attributeSize(fileName);
     unsigned int instSize = instanceSize(fileName);
     unsigned int k = classSize(fileName, instSize, attSize);
 
     //--Print the k classes--//
+    cout << endl << "k-class labels:" << endl;
     YClass(fileName, instSize, attSize).print();
 
     //--Extract feature set from data file--//
@@ -55,6 +76,9 @@ Data::Data(const char* fileName, const double trainPercent, const double testPer
     d_Y.set_size(k, instSize);
     d_Y.zeros();
     createYMat(fileName, instSize, attSize);
+
+    //--Shuffle the data and segment into training and test sets--//
+    segmentDataSet(trainPercent, testPercent);
 
     cout << endl << "Rows: " << d_X.n_rows << "  Cols: " << d_X.n_cols <<  "   K: " << k << endl;
 }
@@ -334,6 +358,7 @@ unsigned int Data::K() const
     return d_Y.n_rows;
 }
 
+
 // mat X() const method
 
 /// Returns matrix X of the data set.
@@ -343,6 +368,7 @@ mat Data::X(void) const
     return d_X;
 }
 
+
 // mat Y() const method
 
 /// Returns matrix Y of the data set.
@@ -350,4 +376,84 @@ mat Data::X(void) const
 mat Data::Y(void) const
 {
     return d_Y;
+}
+
+
+// void segmentDataSet(const double, const double) const method
+
+/// Shuffels the data set and divides it into training and test sets.
+/// @param trainPercent Training split of the data set > 0%.
+/// @param testPercent Test split of the data set ≥ 0%.
+
+void Data::segmentDataSet(const double trainPercent, const double testPercent)
+{
+    if(!(trainPercent >= 0.0 && trainPercent <= 100.0) || !(testPercent >= 0.0 && testPercent <= 100.0))
+    {
+        cerr << "ANN-Backpropagation Error: Data class." << endl
+             << "void segmentDataSet(const double, const double) method" << endl
+             << "Training size(%): " << trainPercent << " and Test size(%): " << testPercent << " should both be in the range [0,100]."
+             << endl;
+
+        exit(1);
+    }
+
+    if(trainPercent + testPercent != 100.0)
+    {
+        cerr << "ANN-Backpropagation Error: Data class." << endl
+             << "void segmentDataSet(const double, const double) method" << endl
+             << "Training set: " << trainPercent << " + Test set: " << testPercent << " != 100%"
+             << endl;
+
+        exit(1);
+    }
+
+    unsigned int m = d_X.n_rows;
+    unsigned int n = d_X.n_cols;
+    unsigned int k = d_Y.n_rows;
+
+    //--Combine matrix X and vector y by inserting vector y as the last column of matrix X--//
+    mat Xy = d_X;
+    Xy.insert_cols(n, d_Y.t());
+
+    //--Shuffle the whole data set--//
+    Xy = shuffle(Xy);
+
+    //--Calculate training set and test set size--//
+    unsigned int trainSize = m * (trainPercent/100.0);
+    unsigned int testSize = m - trainSize;
+
+    //--Segregate data into training and test sets--//
+    if(trainSize)
+    {
+        d_X = Xy;
+        d_X.shed_rows(trainSize, m-1);
+
+        d_Y = (d_X.cols(n, n+k-1)).t();
+        d_X.shed_cols(n, n+k-1);
+    }
+
+    if(testSize)
+    {
+        d_X_test = Xy;
+        if(trainSize)
+        {
+            d_X_test.shed_rows(0, trainSize-1);
+        }
+
+        d_Y_test = (d_X_test.cols(n, n+k-1)).t();
+        d_X_test.shed_cols(n, n+k-1);
+    }
+
+    if(d_X.n_rows + d_X_test.n_rows != m)
+    {
+        cerr << "ANN-Backpropagation Error: Data class." << endl
+             << "void segmentDataSet(const double, const double) method" << endl
+             << "Training set: " << d_X.n_rows << " + Test set: " << d_X.n_rows << " != Data size: " << m
+             << endl;
+
+        exit(1);
+    }
+
+    cout << endl << "Training set size: " << d_X.n_rows
+         << endl << "Test set size: " << d_X_test.n_rows << endl;
 }

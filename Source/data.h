@@ -24,16 +24,13 @@
 #include<math.h>
 #include "armadillo"
 
-#define TRAINING_SIZE 70.0
-#define TEST_SIZE 30.0
-
 using namespace std;
 using namespace arma;
 
 class Data
 {
 public:
-    Data(const char* fileName, const double trainPercent=TRAINING_SIZE, const double testPercent=TEST_SIZE);
+    Data(const char* fileName, const double trainPercent, const double testPercent);
     unsigned int attributeSize(const char* const) const;
     unsigned int instanceSize(const char* const) const;
     unsigned int classSize(const char* const, const unsigned int, const unsigned int) const;
@@ -42,6 +39,7 @@ public:
     void extractX(const char* const, const unsigned int, const unsigned int);
     vec extractY(const char* const, const unsigned int, const unsigned int) const;
     void createYMat(const char* const, const unsigned int, const unsigned int);
+    void segmentDataSet(const double, const double);
 
     unsigned int M() const;
     unsigned int N() const;
@@ -52,6 +50,9 @@ public:
 public:
     mat d_X;
     mat d_Y;
+
+    mat d_X_test;
+    mat d_Y_test;
 };
 
 #endif // DATA_H
