@@ -30,22 +30,24 @@ using namespace arma;
 class Data
 {
 public:
-    Data(const char* fileName, const double trainPercent, const double testPercent);
+    Data(const char* fileName, const double&, const double&);
     unsigned int attributeSize(const char* const) const;
     unsigned int instanceSize(const char* const) const;
-    unsigned int classSize(const char* const, const unsigned int, const unsigned int) const;
-    vec YClass(const char* const, const unsigned int, const unsigned int) const;
+    unsigned int classSize(const char* const, const unsigned int&, const unsigned int&) const;
+    vec YClass(const char* const, const unsigned int&, const unsigned int&) const;
 
-    void extractX(const char* const, const unsigned int, const unsigned int);
-    vec extractY(const char* const, const unsigned int, const unsigned int) const;
-    void createYMat(const char* const, const unsigned int, const unsigned int);
-    void segmentDataSet(const double, const double);
+    void extractX(const char* const, const unsigned int&, const unsigned int&);
+    vec extractY(const char* const, const unsigned int&, const unsigned int&) const;
+    void createYMat(const char* const, const unsigned int&, const unsigned int&);
+    void segmentDataSet(const double&, const double&);
 
     unsigned int M() const;
     unsigned int N() const;
     unsigned int K() const;
     mat X() const;
     mat Y() const;
+    mat testX() const;
+    mat testY() const;
 
 public:
     mat d_X;

@@ -26,7 +26,7 @@
 /// @param trainPercent Training split of the data set > 0%.
 /// @param testPercent Test split of the data set ≥ 0%.
 
-Data::Data(const char* fileName, const double trainPercent, const double testPercent)
+Data::Data(const char* fileName, const double& trainPercent, const double& testPercent)
 {
     if(!fileName)
     {
@@ -52,7 +52,7 @@ Data::Data(const char* fileName, const double trainPercent, const double testPer
     {
       cerr << "ANN-Backpropagation Error: Data class." << endl
            << "DataSet(const char*, const double, const double) constructor." << endl
-             << "Training set = " << trainPercent << " + Test set = "<< testPercent << " has to be equal to 100%."
+             << "Training set = " << trainPercent << "% + Test set = "<< testPercent << "% has to be equal to 100%!"
              << endl;
 
         exit(1);
@@ -178,40 +178,40 @@ unsigned int Data::instanceSize(const char* const fileName) const
 }
 
 
-// unsigned int classSize(const char* const, const unsigned int, const unsigned int) const method
+// unsigned int classSize(const char* const, const unsigned int&, const unsigned int&) const method
 
 /// Returns the size of vector of unique labels (k) on the data file.
 /// @param fileName Path and name of the file containing training data.
 /// @param M Number of instances on file.
 /// @param N Number of attributes on file.
 
-unsigned int Data::classSize(const char* const fileName, const unsigned int M, const unsigned int N) const
+unsigned int Data::classSize(const char* const fileName, const unsigned int& M, const unsigned int& N) const
 {
     return YClass(fileName, M, N).n_rows;
 }
 
 
-// unsigned int YClass(const char* const, const unsigned int, const unsigned int) const method
+// unsigned int YClass(const char* const, const unsigned int&, const unsigned int&) const method
 
 /// Returns a vector of unique labels (Y_i) on the data file.
 /// @param fileName Path and name of the file containing training data.
 /// @param M Number of instances on file.
 /// @param N Number of attributes on file.
 
-vec Data::YClass(const char* const fileName, const unsigned int M, const unsigned int N) const
+vec Data::YClass(const char* const fileName, const unsigned int& M, const unsigned int& N) const
 {
     return unique(extractY(fileName, M, N));
 }
 
 
-// void extractX(const char* const, const unsigned int, const unsigned int) method
+// void extractX(const char* const, const unsigned int&, const unsigned int&) method
 
 /// Extracts attributes of the data set from the file.
 /// @param fileName Path and name of the file containing training data.
 /// @param M Number of instances on file.
 /// @param N Number of attributes on file.
 
-void Data::extractX(const char* const fileName, const unsigned int M, const unsigned int N)
+void Data::extractX(const char* const fileName, const unsigned int& M, const unsigned int& N)
 {
     fstream inputFile;
     inputFile.open(fileName, ios::in);
@@ -255,14 +255,14 @@ void Data::extractX(const char* const fileName, const unsigned int M, const unsi
 }
 
 
-// void extractY(const char* const, const unsigned int, const unsigned int) method
+// void extractY(const char* const, const unsigned int&, const unsigned int&) method
 
 /// Extracts targets of the data set from the file.
 /// @param fileName Path and name of the file containing training data.
 /// @param M Number of instances on file.
 /// @param N Number of attributes on file.
 
-vec Data::extractY(const char* const fileName, const unsigned int M, const unsigned int N) const
+vec Data::extractY(const char* const fileName, const unsigned int& M, const unsigned int& N) const
 {
     fstream inputFile;
     inputFile.open(fileName, ios::in);
@@ -308,7 +308,7 @@ vec Data::extractY(const char* const fileName, const unsigned int M, const unsig
 }
 
 
-// void createYMat(const char* const, const unsigned int, const unsigned int) method
+// void createYMat(const char* const, const unsigned int&, const unsigned int&) method
 
 /// Based on the target vector y ∈ R^m, extracts unique target values.
 /// Creates matrix Y ∈ R^(kxm), where y⁽i⁾ ∈ R^k, and of type [... 0 1 0 ...]'
@@ -316,7 +316,7 @@ vec Data::extractY(const char* const fileName, const unsigned int M, const unsig
 /// @param M Number of instances on file.
 /// @param N Number of attributes on file.
 
-void Data::createYMat(const char* const fileName, const unsigned int M, const unsigned int N)
+void Data::createYMat(const char* const fileName, const unsigned int& M, const unsigned int& N)
 {
     vec Y = extractY(fileName, M, N);
     vec yClass = unique(Y);
@@ -329,63 +329,13 @@ void Data::createYMat(const char* const fileName, const unsigned int M, const un
 }
 
 
-// unsigned int M() const method
-
-/// Returns the number of rows in the data set.
-
-unsigned int Data::M() const
-{
-    return d_X.n_rows;
-}
-
-
-// unsigned int N() const method
-
-/// Returns the number of colums in the data set.
-
-unsigned int Data::N() const
-{
-    return d_X.n_cols;
-}
-
-
-// unsigned int K() const method
-
-/// Returns the number of classes in the data set.
-
-unsigned int Data::K() const
-{
-    return d_Y.n_rows;
-}
-
-
-// mat X() const method
-
-/// Returns matrix X of the data set.
-
-mat Data::X(void) const
-{
-    return d_X;
-}
-
-
-// mat Y() const method
-
-/// Returns matrix Y of the data set.
-
-mat Data::Y(void) const
-{
-    return d_Y;
-}
-
-
-// void segmentDataSet(const double, const double) const method
+// void segmentDataSet(const double&, const double&) const method
 
 /// Shuffels the data set and divides it into training and test sets.
 /// @param trainPercent Training split of the data set > 0%.
 /// @param testPercent Test split of the data set ≥ 0%.
 
-void Data::segmentDataSet(const double trainPercent, const double testPercent)
+void Data::segmentDataSet(const double& trainPercent, const double& testPercent)
 {
     if(!(trainPercent >= 0.0 && trainPercent <= 100.0) || !(testPercent >= 0.0 && testPercent <= 100.0))
     {
@@ -456,4 +406,74 @@ void Data::segmentDataSet(const double trainPercent, const double testPercent)
 
     cout << endl << "Training set size: " << d_X.n_rows
          << endl << "Test set size: " << d_X_test.n_rows << endl;
+}
+
+
+// unsigned int M() const method
+
+/// Returns the number of rows in the data set.
+
+unsigned int Data::M() const
+{
+    return d_X.n_rows;
+}
+
+
+// unsigned int N() const method
+
+/// Returns the number of colums in the data set.
+
+unsigned int Data::N() const
+{
+    return d_X.n_cols;
+}
+
+
+// unsigned int K() const method
+
+/// Returns the number of classes in the data set.
+
+unsigned int Data::K() const
+{
+    return d_Y.n_rows;
+}
+
+
+// mat X() const method
+
+/// Returns matrix X of the data set.
+
+mat Data::X(void) const
+{
+    return d_X;
+}
+
+
+// mat Y() const method
+
+/// Returns matrix Y of the data set.
+
+mat Data::Y(void) const
+{
+    return d_Y;
+}
+
+
+// mat testX() const method
+
+/// Returns matrix X of the test data set.
+
+mat Data::testX(void) const
+{
+    return d_X_test;
+}
+
+
+// mat testY() const method
+
+/// Returns matrix Y of the test data set.
+
+mat Data::testY(void) const
+{
+    return d_Y_test;
 }

@@ -25,7 +25,7 @@
 /// @param hiddenLayers Number of hidded layers, and hidden neurons in each hidden layer.
 /// @param outputNeurons Number of neurons in the output layer.
 
-NeuralNetwork::NeuralNetwork(const unsigned int inputNeurons, const vector<unsigned int> hiddenLayers, const unsigned int outputNeurons)
+NeuralNetwork::NeuralNetwork(const unsigned int& inputNeurons, const vector<unsigned int>& hiddenLayers, const unsigned int& outputNeurons)
 {
     //--Default hyper-parameters values--//
     d_alpha = ALPHA;
@@ -59,7 +59,7 @@ NeuralNetwork::NeuralNetwork(const unsigned int inputNeurons, const vector<unsig
 }
 
 
-void NeuralNetwork::set_alpha(const double alpha)
+void NeuralNetwork::set_alpha(const double& alpha)
 {
     if(alpha < 0.0)
     {
@@ -75,7 +75,7 @@ void NeuralNetwork::set_alpha(const double alpha)
 }
 
 
-void NeuralNetwork::set_lamda(const double lamda)
+void NeuralNetwork::set_lamda(const double& lamda)
 {
     if(lamda < 0.0)
     {
@@ -182,15 +182,15 @@ void NeuralNetwork::printTheta(void) const
 }
 
 
-// vec activation(const vec, const unsigned int)
+// vec activation(const vec&, const unsigned int&)
 
-/// Calculates activation a⁽l⁾ = g(z), for a given layer l ∈ 1,2,...,L.
+/// Calculates activation a⁽l⁾ = g(z), for a given layer l ∈ [1,2,...,L].
 /// Stores vector a⁽l⁾ in layer l of the network.
 /// Returns a vector of activations a⁽l⁾ for layer l.
-/// @param inputVec Vector v of inputs to calculate activation. v = x_i where l=1, or v = a⁽l-1⁾ where l=2,3,...,L
+/// @param inputVec Vector v of inputs to calculate activation. v = x_i where l=1, or v = a⁽l-1⁾ where l ∈ [2,3,...,L]
 /// @param l Layer of the network.
 
-vec NeuralNetwork::activation(const vec inputVec, const unsigned int l)
+vec NeuralNetwork::activation(const vec& inputVec, const unsigned int& l)
 {
     if(l >= networkArchitecture().size())
     {
@@ -208,7 +208,7 @@ vec NeuralNetwork::activation(const vec inputVec, const unsigned int l)
     //--If l=2,3,4,...,L--//
     if(l > 0)
     {
-        //--g(Θ⁽l⁾ * a⁽l-1⁾)--//
+        //--a⁽l⁾ = g(Θ⁽l⁾ * a⁽l-1⁾) ∀ l ∈ [2,3,...,L]--//
         a = sigmoid(d_Theta[l-1] * a);
     }
 
@@ -239,13 +239,13 @@ vec NeuralNetwork::activation(const vec inputVec, const unsigned int l)
 }
 
 
-// vec sigmoid(const vec)
+// vec sigmoid(const vec&) const
 
 /// Calculates sigmoid for a given vector.
 /// Returns a vector of sigmoids z⁽l⁾ for layer l.
 /// @param z Input vector z = Θ⁽l⁾ * a⁽l-1⁾ where l=2,3,...,L
 
-vec NeuralNetwork::sigmoid(const vec z)
+vec NeuralNetwork::sigmoid(const vec& z) const
 {
     vec one = ones<vec>(z.n_rows);
 
@@ -255,13 +255,13 @@ vec NeuralNetwork::sigmoid(const vec z)
 }
 
 
-// vec h_Theta(const vec)
+// vec h_Theta(const vec&)
 
 /// Calculates hΘ(x) = g(z⁽L⁾)
 /// Returns a vector v ∈ R^k, predicting one instance of data x_i.
 /// @param x Input vector x, which is a feature vector in the data set.
 
-vec NeuralNetwork::h_Theta(const vec x)
+vec NeuralNetwork::h_Theta(const vec& x)
 {
     vec a = x;
     unsigned int layers = networkArchitecture().size();
@@ -275,14 +275,14 @@ vec NeuralNetwork::h_Theta(const vec x)
 }
 
 
-// double cost(const vector<mat>, const mat, const mat)
+// double cost(const vector<mat>&, const mat&, const mat&)
 
 /// Calculates and returns the regularized cost of the neural network, given Θ, input matric X and k-class label matric Y.
 /// @param Theta A vector of Theta matrices Θ⁽l⁾ ∀ l = 1,2,...,(L-1).
 /// @param X Input feature matrix X.
 /// @param Y Input label matrix Y.
 
-double NeuralNetwork::cost(const vector<mat> Theta, const mat X, const mat Y)
+double NeuralNetwork::cost(const vector<mat>& Theta, const mat& X, const mat& Y)
 {
     double cost;
     vec error = zeros<vec>(1);
@@ -326,13 +326,13 @@ double NeuralNetwork::cost(const vector<mat> Theta, const mat X, const mat Y)
 }
 
 
-// void train(const mat, const mat)
+// void train(const mat&, const mat&)
 
 /// Trains the neural network through backpropagation and gradient descent, given input matric X and k-class-label matric Y.
 /// @param X Input feature matrix X.
 /// @param Y Input label matrix Y.
 
-void NeuralNetwork::train(const mat X, const mat Y)
+void NeuralNetwork::train(const mat& X, const mat& Y)
 {
     if(X.n_rows != Y.n_cols)
     {
@@ -376,7 +376,7 @@ void NeuralNetwork::train(const mat X, const mat Y)
         //--                       |‾    ∂      ‾|--//
         //-- Θ⁽l⁾_ij := Θ⁽l⁾_ij - 𝛼| --------J(Θ)|--//
         //--                       |_∂Θ⁽l⁾_ij   _|--//
-        d_Theta = gradientdescent(d_Theta, partDeriv_cost);
+        gradientdescent(d_Theta, partDeriv_cost);
 
     }while(fabs(c_prev - c) > LEARNING_CURVE_DELTA);
 
@@ -384,25 +384,23 @@ void NeuralNetwork::train(const mat X, const mat Y)
 }
 
 
-// vector<mat> gradientdescent(vector<mat>, const vector<mat>)
+// void gradientdescent(vector<mat>&, const vector<mat>&)
 
 /// Implements gradient descent algorithm for updating Θ⁽l⁾_ij ∀ l,i,j, give partial derivatives D⁽l⁾_ij ∀ l,i,j
 /// @param Theta A vector of Theta matrices Θ⁽l⁾ ∀ l = 1,2,...,(L-1)
 /// @param D A vector of partial derivatives matrices D⁽l⁾ ∀ l = 1,2,...,(L-1)
 
-vector<mat> NeuralNetwork::gradientdescent(vector<mat> Theta, const vector<mat> D)
+void NeuralNetwork::gradientdescent(vector<mat>& Theta, const vector<mat>& D)
 {
     for(unsigned int l=0; l<Theta.size(); l++)
     {
         //--Θ⁽l⁾_ij := Θ⁽l⁾_ij - 𝛼(∂J(Θ)/∂Θ⁽l⁾_ij)--//
         Theta[l] = Theta[l] - (d_alpha * D[l]);
     }
-
-    return Theta;
 }
 
 
-// vector<mat> backpropagate(vector<mat>, const mat, const mat)
+// vector<mat> backpropagate(vector<mat>&, const mat&, const mat&)
 
 /// Implements backpropagate algorithm for calculating partial derivatives D⁽l⁾_ij ∀ l,i,j
 /// Returns a vector of partial derivative matrices D⁽l⁾ ∀ l = 1,2,...,(L-1)
@@ -410,7 +408,7 @@ vector<mat> NeuralNetwork::gradientdescent(vector<mat> Theta, const vector<mat> 
 /// @param X Input feature matrix X.
 /// @param Y Input label matrix Y.
 
-vector<mat> NeuralNetwork::backpropagate(const vector<mat> Theta, const mat X, const mat Y)
+vector<mat> NeuralNetwork::backpropagate(const vector<mat>& Theta, const mat& X, const mat& Y)
 {
     //--D⁽l⁾, where l = 1,2,3,...,(L-1)--//
     vector<mat> D = Theta;
@@ -480,7 +478,7 @@ vector<mat> NeuralNetwork::backpropagate(const vector<mat> Theta, const mat X, c
 }
 
 
-// vec error(const mat, const vec, const unsigned int)
+// vec error(const mat&, const vec&, const unsigned int&) const
 
 /// Computes error vector δ⁽l⁾, where l=2,3,...,L, given Theta matrix Θ⁽l⁾ and input vector v = δ⁽l+1⁾, if l < L, or v = hΘ(x) if l = L
 /// Returns a vector of error terms for layer l.
@@ -488,7 +486,7 @@ vector<mat> NeuralNetwork::backpropagate(const vector<mat> Theta, const mat X, c
 /// @param input Input vector v = δ⁽l+1⁾, if l < L, or v = hΘ(x) if l = L.
 /// @param l Layer of the network.
 
-vec NeuralNetwork::error(const mat Theta, const vec input, const unsigned int l)
+vec NeuralNetwork::error(const mat& Theta, const vec& input, const unsigned int& l) const
 {
     if(l >= networkArchitecture().size())
     {
@@ -525,7 +523,7 @@ vec NeuralNetwork::error(const mat Theta, const vec input, const unsigned int l)
 }
 
 
-// void gradientCheck(const vector<mat>, const vector<mat>, const mat, const mat)
+// void gradientCheck(const vector<mat>&, const vector<mat>&, const mat&, const mat&)
 
 /// Implements gradient checking by calculating different between partial derivatives calculated numerically and by through backpropagation.
 /// @param Theta A vector of Theta matrices Θ⁽l⁾ ∀ l = 1,2,...,(L-1)
@@ -533,7 +531,7 @@ vec NeuralNetwork::error(const mat Theta, const vec input, const unsigned int l)
 /// @param X Input feature matrix X.
 /// @param Y Input label matrix Y.
 
-void NeuralNetwork::gradientCheck(const vector<mat> Theta, const vector<mat> D_backprop, const mat X, const mat Y)
+void NeuralNetwork::gradientCheck(const vector<mat>& Theta, const vector<mat>& D_backprop, const mat& X, const mat& Y)
 {
     vector<mat> D_num;
 
@@ -549,7 +547,7 @@ void NeuralNetwork::gradientCheck(const vector<mat> Theta, const vector<mat> D_b
 }
 
 
-// vector<mat> numericalGradient(const vector<mat>, const mat, const mat)
+// vector<mat> numericalGradient(const vector<mat>&, const mat&, const mat&)
 
 /// Calculates partial derivatives D⁽l⁾_ij ∀ l,i,j, numerically.
 /// Returns a vector of numerically calculated partial derivative matrices D⁽l⁾ ∀ l = 1,2,...,(L-1)
@@ -557,7 +555,7 @@ void NeuralNetwork::gradientCheck(const vector<mat> Theta, const vector<mat> D_b
 /// @param X Input feature matrix X.
 /// @param Y Input label matrix Y.
 
-vector<mat> NeuralNetwork::numericalGradient(const vector<mat> Theta, const mat X, const mat Y)
+vector<mat> NeuralNetwork::numericalGradient(const vector<mat>& Theta, const mat& X, const mat& Y)
 {
     //--D⁽l⁾, where l = 1,2,3,...,(L-1)--//
     vector<mat> D = Theta;

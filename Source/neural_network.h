@@ -34,10 +34,10 @@ using namespace arma;
 class NeuralNetwork{
 
 public:
-    NeuralNetwork(const unsigned int, const vector<unsigned int>, const unsigned int);
+    NeuralNetwork(const unsigned int&, const vector<unsigned int>&, const unsigned int&);
 
-    void set_alpha(const double);
-    void set_lamda(const double);
+    void set_alpha(const double&);
+    void set_lamda(const double&);
     double alpha(void) const;
     double lamda(void) const;
 
@@ -45,17 +45,17 @@ public:
     vec Layer(const unsigned int) const;
     void printTheta(void) const;
 
-    vec activation(const vec, const unsigned int);
-    vec sigmoid(const vec);
-    vec h_Theta(const vec);
-    double cost(const vector<mat>, const mat, const mat);
-    void train(const mat, const mat);
-    vector<mat> gradientdescent(vector<mat>, const vector<mat>);
-    vector<mat> backpropagate(const vector<mat>, const mat, const mat);
-    vec error(const mat, const vec, const unsigned int);
+    vec activation(const vec&, const unsigned int&);
+    vec sigmoid(const vec&) const;
+    vec h_Theta(const vec&);
+    double cost(const vector<mat>&, const mat&, const mat&);
+    void train(const mat&, const mat&);
+    void gradientdescent(vector<mat>&, const vector<mat>&);
+    vector<mat> backpropagate(const vector<mat>&, const mat&, const mat&);
+    vec error(const mat&, const vec&, const unsigned int&) const;
 
-    void gradientCheck(const vector<mat>, const vector<mat>, const mat, const mat);
-    vector<mat> numericalGradient(const vector<mat>, const mat, const mat);
+    void gradientCheck(const vector<mat>&, const vector<mat>&, const mat&, const mat&);
+    vector<mat> numericalGradient(const vector<mat>&, const mat&, const mat&);
 
 
 private:
