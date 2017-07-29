@@ -127,7 +127,7 @@ vector<unsigned int> NeuralNetwork::networkArchitecture(void) const
 // vec Layer(const unsigned int) const
 
 /// Returns a vector of activations a⁽l⁾, where l=1,2,...,L, of layer l.
-/// The activations are from the most recent forward propagation of the network.
+/// The activations are from the most recent forward-propagation of the network.
 /// @param l Layer of the network.
 
 vec NeuralNetwork::Layer(const unsigned int l) const
@@ -377,15 +377,15 @@ double NeuralNetwork::cost(const vector<mat>& Theta, const mat& X, const mat& Y)
 
     unsigned int m = X.n_rows;
     mat one = ones<mat>(m, Y.col(0).n_rows);
-    mat h_x;
+    mat h_X;
     mat theta;
 
     //--Error--//
     //-- m K                                                      --//
     //-- ∑ ∑ y⁽i⁾_k log(hΘ(x⁽i⁾)_k) + (1-y⁽i⁾_k) log(1-hΘ(x⁽i⁾)_k)--//
     //-- i k                                                      --//
-    h_x = h_Theta(X);
-    mat error = (Y.t() % log(h_x)) + ((one - Y.t()) % log(one - h_x));
+    h_X = h_Theta(X);
+    mat error = (Y.t() % log(h_X)) + ((one - Y.t()) % log(one - h_X));
     //--Note: '%' is element-wise multiplication in Armadillo--//
 
     //--Regularization--//
@@ -523,7 +523,7 @@ vector<mat> NeuralNetwork::backpropagate(const vector<mat>& Theta, const mat& X,
 
     for(unsigned int i=0; i<m; i++)
     {
-        //--Forward Propagation--//
+        //--Forward-Propagation--//
         a_L = h_Theta(vec(X.row(i).t()));
         y_i = Y.col(i);
 
@@ -666,15 +666,134 @@ vector<mat> NeuralNetwork::numericalGradient(const vector<mat>& Theta, const mat
 }
 
 
-// double test(const mat&, const mat&)
+// double test(const mat&, const mat&, const vec&)
 
-/// Trains the neural network through backpropagation and gradient descent, given input matric X and k-class-label matric Y.
-/// @param X_test Test set feature matrix X.
-/// @param Y_test Test set label matrix Y.
-///
-double NeuralNetwork::test(const mat& X_test, const mat& Y_test)
+/// Runs test on the given test set, and returns the cost.
+/// @param X Test set feature matrix.
+/// @param target Test set target matrix.
+/// @param k Class size of the dataset.
+
+double NeuralNetwork::test(const mat& X, const mat& target, const vec& labels, const bool show_stats=false)
 {
-    double c = cost(d_Theta, X_test, Y_test);
+    unsigned int k = labels.n_rows;
+    double c = cost(d_Theta, X, target);
+    umat confMat = confusionMatrix(X, target, k);
+
+    if(show_stats)
+    {
+        print_confusionMatrix(confMat, labels);
+    }
 
     return c;
+}
+
+
+// mat predict(const mat& X, const unsigned int&)
+
+/// Given an input feature matrix, predicts the most likely class label
+/// of the input through forward-propagation
+/// @param X Test set feature matrix.
+/// @param k Class size of the dataset.
+
+mat NeuralNetwork::predict(const mat& X, const unsigned int& k)
+{
+    unsigned int m = X.n_rows;
+
+    mat h_X = h_Theta(X);
+    mat P = zeros<mat>(m, k);
+
+    ucolvec max_indx = index_max(h_X, 1);
+
+    for(unsigned int i=0; i<m; i++)
+    {
+        P(i, max_indx[i]) = 1.0;
+    }
+
+    return P;
+}
+
+
+// umat confusionMatrix(const mat&, const mat&, const unsigned int&)
+
+/// Given an input feature matrix, predicts the most likely class label
+/// of the input through forward-propagation
+/// @param X Test set feature matrix.
+/// @param target Test set target matrix.
+/// @param k Class size of the dataset.
+
+umat NeuralNetwork::confusionMatrix(const mat& X, const mat& target, const unsigned int& k)
+{
+    umat confMat(k, k);
+    confMat.zeros();
+
+    mat predicted_y = predict(X, k);
+
+    unsigned int m = X.n_rows;
+    uvec row_indx;
+    uvec col_indx;
+
+    for(unsigned int i=0; i<m; i++)
+    {
+        row_indx = find(target.col(i) == 1, 1);
+        col_indx = find(predicted_y.row(i) == 1, 1);
+
+        confMat(row_indx, col_indx) += 1;
+    }
+
+    urowvec col_sum = sum(confMat, 0);
+    ucolvec row_sum = sum(confMat, 1);
+
+    uvec TP = confMat.diag();
+    uvec TN = accu(confMat) - (col_sum.t() + row_sum) + TP ;
+    uvec FP = sum(confMat, 0).t() - TP;
+    uvec FN = sum(confMat, 1) - TP;
+
+    /*mat binartConfMat = zeros<mat>(2, 2);
+    binartConfMat(0,0) = TP(1);
+    binartConfMat(0,1) = confMat(0,1);
+    binartConfMat(1,0) = confMat(1,0);
+    binartConfMat(1,1) = TP(0);*/
+
+    return confMat;
+}
+
+
+// void print_confusionMatrix(umat, const vec&) const
+
+
+void NeuralNetwork::print_confusionMatrix(umat confMat, const vec& labels) const
+{
+    unsigned int k = labels.n_rows;
+    unsigned int total_samples = accu(confMat);
+    unsigned int total_TP = trace(confMat);
+
+    uvec actuals = conv_to< uvec >::from(labels);
+    confMat.insert_cols(0, actuals);
+
+    cout << endl << "confMat.size(): " << confMat.size() << endl;
+
+    cout << endl << "       Confusion Matrix        "
+         << endl << "     --------------------      "
+         << endl << "          Predicted            "
+         << endl << "        <----------->          "
+         << endl << "                         ";
+
+    for(unsigned int i=0; i<k; i++)
+    {
+        cout << i << "            ";
+    }
+
+    cout << endl << "                        ";
+    for(unsigned int i=0; i<k; i++)
+    {
+        cout << "---          ";
+    }
+
+    cout << endl << confMat << endl;
+    cout << endl << "Total Samples: " << total_samples
+         << endl << "Total True Positives: " << total_TP;
+
+    /*cout << endl << "No. of actual positives: " << TP + FN
+         << endl << "No. of actual negatives: " << TN + FP
+         << endl << "Total Misclassifications: " << FP + FN << endl;*/
 }

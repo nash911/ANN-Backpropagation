@@ -24,8 +24,8 @@
 #include<math.h>
 #include "armadillo"
 
-#define ALPHA 0.1
-#define LAMDA 0.1
+#define ALPHA 0.01
+#define LAMDA 3.0
 #define LEARNING_CURVE_DELTA 0.0001
 
 using namespace std;
@@ -61,7 +61,10 @@ public:
     void gradientCheck(const vector<mat>&, const vector<mat>&, const mat&, const mat&);
     vector<mat> numericalGradient(const vector<mat>&, const mat&, const mat&);
 
-    double test(const mat&, const mat&);
+    double test(const mat&, const mat&, const vec&, const bool);
+    mat predict(const mat& X, const unsigned int&);
+    umat confusionMatrix(const mat&, const mat&, const unsigned int&);
+    void print_confusionMatrix(umat, const vec&) const;
 
 
 private:

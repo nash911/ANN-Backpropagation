@@ -44,6 +44,7 @@ public:
     unsigned int M() const;
     unsigned int N() const;
     unsigned int K() const;
+    vec labels(void) const;
     mat X() const;
     mat Y() const;
     mat X_test() const;
@@ -55,6 +56,8 @@ public:
 
     mat d_X_test;
     mat d_Y_test;
+
+    vec d_class;
 };
 
 #endif // DATA_H

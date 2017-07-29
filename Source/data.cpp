@@ -67,6 +67,7 @@ Data::Data(const char* fileName, const double& trainPercent, const double& testP
     cout << endl << "k-class labels:" << endl;
     YClass(fileName, instSize, attSize).print();
 
+
     //--Extract feature set from data file--//
     d_X.set_size(instSize, attSize);
     d_X.zeros();
@@ -76,6 +77,9 @@ Data::Data(const char* fileName, const double& trainPercent, const double& testP
     d_Y.set_size(k, instSize);
     d_Y.zeros();
     createYMat(fileName, instSize, attSize);
+
+    //--Extract unique labels and sort them--//
+    d_class = sort(YClass(fileName, instSize, attSize));
 
     //--Shuffle the data and segment into training and test sets--//
     segmentDataSet(trainPercent, testPercent);
@@ -435,7 +439,17 @@ unsigned int Data::N() const
 
 unsigned int Data::K() const
 {
-    return d_Y.n_rows;
+    return d_class.n_rows;
+}
+
+
+// vec labels(void) const method
+
+/// Returns a vector containing the k distinct labels of the data set.
+
+vec Data::labels(void) const
+{
+    return d_class;
 }
 
 
