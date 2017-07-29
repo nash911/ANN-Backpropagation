@@ -168,6 +168,16 @@ vec NeuralNetwork::Layer(const unsigned int l) const
 }
 
 
+// vector<mat> Theta(void) const
+
+/// Returns the vector of Theta matrices Θ⁽l⁾ ∀ l ∈ [1,2,...,(L-1)].
+
+vector<mat> NeuralNetwork::Theta(void) const
+{
+    return d_Theta;
+}
+
+
 // void printTheta(void) const
 
 /// Prints on screen Θ⁽l⁾ ∀ l=1,2,...,(L-1).
@@ -329,8 +339,8 @@ double NeuralNetwork::cost(const vector<mat>& Theta, const mat& X, const mat& Y)
 // void train(const mat&, const mat&)
 
 /// Trains the neural network through backpropagation and gradient descent, given input matric X and k-class-label matric Y.
-/// @param X Input feature matrix X.
-/// @param Y Input label matrix Y.
+/// @param X Training set feature matrix X.
+/// @param Y Training set label matrix Y.
 
 void NeuralNetwork::train(const mat& X, const mat& Y)
 {
@@ -581,4 +591,18 @@ vector<mat> NeuralNetwork::numericalGradient(const vector<mat>& Theta, const mat
     }
 
     return D;
+}
+
+
+// double test(const mat&, const mat&)
+
+/// Trains the neural network through backpropagation and gradient descent, given input matric X and k-class-label matric Y.
+/// @param X_test Test set feature matrix X.
+/// @param Y_test Test set label matrix Y.
+///
+double NeuralNetwork::test(const mat& X_test, const mat& Y_test)
+{
+    double c = cost(d_Theta, X_test, Y_test);
+
+    return c;
 }

@@ -46,8 +46,8 @@ public:
     unsigned int K() const;
     mat X() const;
     mat Y() const;
-    mat testX() const;
-    mat testY() const;
+    mat X_test() const;
+    mat Y_test() const;
 
 public:
     mat d_X;

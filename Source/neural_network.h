@@ -24,8 +24,8 @@
 #include<math.h>
 #include "armadillo"
 
-#define ALPHA 0.3
-#define LAMDA 0.0
+#define ALPHA 0.1
+#define LAMDA 0.1
 #define LEARNING_CURVE_DELTA 0.0001
 
 using namespace std;
@@ -43,6 +43,7 @@ public:
 
     vector<unsigned int> networkArchitecture(void) const;
     vec Layer(const unsigned int) const;
+    vector<mat> Theta(void) const;
     void printTheta(void) const;
 
     vec activation(const vec&, const unsigned int&);
@@ -56,6 +57,8 @@ public:
 
     void gradientCheck(const vector<mat>&, const vector<mat>&, const mat&, const mat&);
     vector<mat> numericalGradient(const vector<mat>&, const mat&, const mat&);
+
+    double test(const mat&, const mat&);
 
 
 private:

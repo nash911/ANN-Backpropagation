@@ -459,21 +459,21 @@ mat Data::Y(void) const
 }
 
 
-// mat testX() const method
+// mat X_test() const method
 
 /// Returns matrix X of the test data set.
 
-mat Data::testX(void) const
+mat Data::X_test(void) const
 {
     return d_X_test;
 }
 
 
-// mat testY() const method
+// mat Y_test() const method
 
 /// Returns matrix Y of the test data set.
 
-mat Data::testY(void) const
+mat Data::Y_test(void) const
 {
     return d_Y_test;
 }
