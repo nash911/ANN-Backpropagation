@@ -212,14 +212,14 @@ vec NeuralNetwork::activation(const vec& inputVec, const unsigned int& l)
         exit(1);
     }
 
-    //--a⁽l⁾ = x_i ∀ l=1--//
+    //--a⁽l⁾ = x_i if l=1--//
     vec a = inputVec;
 
-    //--If l=2,3,4,...,L--//
+    //--If l ∈ [2,3,4,...,L]--//
     if(l > 0)
     {
         //--a⁽l⁾ = g(Θ⁽l⁾ * a⁽l-1⁾) ∀ l ∈ [2,3,...,L]--//
-        a = sigmoid(d_Theta[l-1] * a);
+        a = sigmoid(vec(d_Theta[l-1] * a));
     }
 
     //--Storing a⁽l⁾ in layer l of the neural network--//
@@ -240,9 +240,52 @@ vec NeuralNetwork::activation(const vec& inputVec, const unsigned int& l)
     //--Adding bias neuron a⁽l⁾_0--//
     if(l < (networkArchitecture().size() - 1))
     {
-        //--Adding element a_0 ∀ l≠L--//
+        //--Adding element a⁽l⁾_0 ∀ l≠L--//
         vec a_0 = ones(1);
         a.insert_rows(0, a_0);
+    }
+
+    return a;
+}
+
+
+// mat activation(const mat&, const unsigned int&)
+
+/// Calculates activation a⁽l⁾ = g(z), for a given layer l ∈ [1,2,...,L].
+/// Stores vector a⁽l⁾ in layer l of the network.
+/// Returns a matrix of activations a⁽l⁾ for layer l.
+/// @param inputMat Matrix X of inputs to calculate activation. //v = x_i where l=1, or v = a⁽l-1⁾ where l ∈ [2,3,...,L]
+/// @param l Layer of the network.
+
+mat NeuralNetwork::activation(const mat& inputMat, const unsigned int& l)
+{
+    if(l >= networkArchitecture().size())
+    {
+        cerr << "ANN-Backpropagation Error: NeuralNetwork class." << endl
+             << "mat activation(const mat&, const unsigned int&) methon." << endl
+             << "Layer l: " << l << " should be < network architecture size: " << networkArchitecture().size()
+             << endl;
+
+        exit(1);
+    }
+
+    //--a⁽l⁾ = X if l=1--//
+    mat a = inputMat;
+
+    //--If l ∈ [2,3,4,...,L]--//
+    if(l > 0)
+    {
+        //--a⁽l⁾ = g(Θ⁽l⁾ * a⁽l-1⁾) ∀ l ∈ [2,3,...,L]--//
+        a = sigmoid(mat(a * d_Theta[l-1].t()));
+    }
+
+    //--Adding bias neuron a⁽l⁾_0--//
+    if(l < (networkArchitecture().size() - 1))
+    {
+        //--Adding element a⁽l⁾_0 ∀ l≠L--//
+        //vec a_0 = ones(m);
+        vec a_0 = ones<vec>(a.n_rows);
+        a.insert_cols(0, a_0);
     }
 
     return a;
@@ -261,6 +304,22 @@ vec NeuralNetwork::sigmoid(const vec& z) const
 
     //--g(z) = ¹/(1 + e^-z)--//
     return(one/(one + exp(-z)));
+
+}
+
+
+// mat sigmoid(const mat&) const
+
+/// Calculates sigmoid for a given matrix.
+/// Returns a matrix of sigmoids z⁽l⁾ for layer l.
+/// @param Z Input matrix Z = Θ⁽l⁾ * a⁽l-1⁾ where l=2,3,...,L
+
+mat NeuralNetwork::sigmoid(const mat& Z) const
+{
+    mat one = ones<mat>(Z.n_rows, Z.n_cols);
+
+    //--g(Z) = ¹/(1 + e^-Z)--//
+    return(one/(one + exp(-Z)));
 
 }
 
@@ -285,6 +344,26 @@ vec NeuralNetwork::h_Theta(const vec& x)
 }
 
 
+// mat h_Theta(const mat&)
+
+/// Calculates hΘ(x) = g(z⁽L⁾)
+/// Returns a matrix A ∈ R^(m x k), predicting data in X.
+/// @param X Input matrix X, of input features in the data set.
+
+mat NeuralNetwork::h_Theta(const mat& X)
+{
+    mat A = X;
+    unsigned int layers = networkArchitecture().size();
+
+    for(unsigned int l=0; l<layers; l++)
+    {
+        A = activation(A, l);
+    }
+
+    return(A);
+}
+
+
 // double cost(const vector<mat>&, const mat&, const mat&)
 
 /// Calculates and returns the regularized cost of the neural network, given Θ, input matric X and k-class label matric Y.
@@ -294,27 +373,20 @@ vec NeuralNetwork::h_Theta(const vec& x)
 
 double NeuralNetwork::cost(const vector<mat>& Theta, const mat& X, const mat& Y)
 {
-    double cost;
-    vec error = zeros<vec>(1);
     double regu = 0;
 
     unsigned int m = X.n_rows;
-    vec one = ones<vec>(Y.col(0).n_rows);
-    vec h_x;
-    vec y_i;
+    mat one = ones<mat>(m, Y.col(0).n_rows);
+    mat h_x;
     mat theta;
 
     //--Error--//
     //-- m K                                                      --//
     //-- ∑ ∑ y⁽i⁾_k log(hΘ(x⁽i⁾)_k) + (1-y⁽i⁾_k) log(1-hΘ(x⁽i⁾)_k)--//
     //-- i k                                                      --//
-    for(unsigned int i=0; i<m; i++)
-    {
-        h_x = h_Theta(X.row(i).t());
-        y_i = Y.col(i);
-
-        error = error + ((y_i.t() * log(h_x)) + ((one - y_i).t() * log(one - h_x)));
-    }
+    h_x = h_Theta(X);
+    mat error = (Y.t() % log(h_x)) + ((one - Y.t()) % log(one - h_x));
+    //--Note: '%' is element-wise multiplication in Armadillo--//
 
     //--Regularization--//
     //-- L-1 s_l s_(l+1)           --//
@@ -322,15 +394,15 @@ double NeuralNetwork::cost(const vector<mat>& Theta, const mat& X, const mat& Y)
     //--  l   i     j              --//
     for(unsigned int l=0; l<Theta.size(); l++)
     {
-        theta = Theta[l].cols(1,Theta[l].n_cols-1);
-        //--Note: '%' is element-wise multiplication in Armadillo--//
+        theta = Theta[l].cols(1, Theta[l].n_cols-1);
         regu = regu + sum(sum(theta % theta));
     }
 
-    //--       1             λ                  --//
-    //-- J(Θ) --- (error) + ---- (Regulization) --//
-    //--       m             2m                 --//
-    cost = -(sum(error)/m) + ((d_lamda/(2.0*m))*regu);
+    //--Cost Function--//
+    //--           1             λ                  --//
+    //-- J(Θ) = - --- (error) + ---- (Regulization) --//
+    //--           m             2m                 --//
+    double cost = -(accu(error)/m) + ((d_lamda/(2.0*m))*regu);
 
     return(cost);
 }
@@ -452,7 +524,7 @@ vector<mat> NeuralNetwork::backpropagate(const vector<mat>& Theta, const mat& X,
     for(unsigned int i=0; i<m; i++)
     {
         //--Forward Propagation--//
-        a_L = h_Theta(X.row(i).t());
+        a_L = h_Theta(vec(X.row(i).t()));
         y_i = Y.col(i);
 
         //--δ⁽L⁾ = a⁽L⁾ - y⁽i⁾--//

@@ -47,8 +47,11 @@ public:
     void printTheta(void) const;
 
     vec activation(const vec&, const unsigned int&);
+    mat activation(const mat&, const unsigned int&);
     vec sigmoid(const vec&) const;
+    mat sigmoid(const mat&) const;
     vec h_Theta(const vec&);
+    mat h_Theta(const mat&);
     double cost(const vector<mat>&, const mat&, const mat&);
     void train(const mat&, const mat&);
     void gradientdescent(vector<mat>&, const vector<mat>&);
