@@ -25,7 +25,7 @@
 #include "armadillo"
 
 #define ALPHA 0.01
-#define LAMDA 10.0
+#define LAMDA 0.0
 #define LEARNING_CURVE_DELTA 0.0001
 
 using namespace std;

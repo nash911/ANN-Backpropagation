@@ -81,6 +81,17 @@ Data::Data(const char* fileName, const double& trainPercent, const double& testP
     //--Extract unique labels and sort them--//
     d_class = sort(YClass(fileName, instSize, attSize));
 
+    //--Calculate and store the μ and σ of the features--//
+    d_mu = mean(d_X).t();
+    d_sigma = stddev(d_X).t();
+
+    //--Calculate and store the min and max of the features--//
+    d_min = min(d_X).t();
+    d_max = max(d_X).t();
+
+    //--Normalize features--//
+    d_X = normalizeFeatures(d_X);
+
     //--Shuffle the data and segment into training and test sets--//
     segmentDataSet(trainPercent, testPercent);
 
@@ -410,6 +421,122 @@ void Data::segmentDataSet(const double& trainPercent, const double& testPercent)
 
     cout << endl << "Training set size: " << d_X.n_rows
          << endl << "Test set size: " << d_X_test.n_rows << endl;
+}
+
+
+// vec Mean(void) const method
+
+/// Returns a vector containing the mean of the attributes.
+
+vec Data::Mean(void) const
+{
+    return d_mu;
+}
+
+
+// vec STDEV(void) const method
+
+/// Returns a vector containing the standard deviation of the attributes.
+
+vec Data::STDEV(void) const
+{
+    return d_sigma;
+}
+
+
+// vec Min(void) const method
+
+/// Returns a vector containing the minimum of the attributes.
+
+vec Data::Min(void) const
+{
+    return d_min;
+}
+
+
+// vec Max(void) const method
+
+/// Returns a vector containing the maximum of the attributes.
+
+vec Data::Max(void) const
+{
+    return d_max;
+}
+
+
+// vec normalizeFeatures(const vec) method
+
+/// Normalizes features of a single data instance and returns it as a vector.
+/// @param x Feature vector of a single data instance.
+
+vec Data::normalizeFeatures(const vec x)
+{
+    if(!x.n_rows)
+    {
+        cerr << "ANN-Backpropagation Error: Data class." << endl
+             << "vec normalizeFeatures(const vec) method" << endl
+             << "Feature vector x: "<< x.n_rows  << " cannot be empty." << endl;
+
+        exit(1);
+    }
+
+    if(d_mu.n_rows != x.n_rows)
+    {
+        cerr << "ANN-Backpropagation Error: Data class." << endl
+             << "vec normalizeFeatures(const vec) method" << endl
+             << "Rows of feature vector x: "<< x.n_rows  << " must be equal to rows of mean vector Mu: " << d_mu.n_rows << endl;
+
+        exit(1);
+    }
+
+    vec norm_x = x;
+
+    //--        x_i - μ_i --//
+    //--x_i <-- --------- --//
+    //--           σ_i    --//
+    norm_x = (norm_x - d_mu) / d_sigma;
+
+    return norm_x;
+}
+
+
+// mat normalizeFeatures(const mat) method
+
+/// Normalizes features of a data set and returns it as a matrix.
+/// @param X Feature matrix were each row is an instance and each column is an attribute.
+
+mat Data::normalizeFeatures(const mat X)
+{
+    if(!X.n_elem)
+    {
+        cerr << "ANN-Backpropagation Error: Data class." << endl
+             << "mat normalizeFeatures(const mat) method" << endl
+             << "Matrix X: "<< X.n_elem  << " cannot be empty." << endl;
+
+        exit(1);
+    }
+
+    if(X.n_cols != d_mu.n_rows)
+    {
+        cerr << "ANN-Backpropagation Error: Data class." << endl
+             << "mat normalizeFeatures(const mat) method" << endl
+             << "Colums of matrix X: "<< X.n_cols  << " must be equal to rows of vector Mu: " << d_mu.n_rows << endl;
+
+        exit(1);
+    }
+
+    mat norm_X = X;
+    unsigned int n = X.n_cols;
+
+    for(unsigned int c=0; c<n; c++)
+    {
+        //--        X_i - μ_i --//
+        //--X_i <-- --------- --//
+        //--           σ_i    --//
+        norm_X.col(c) = (norm_X.col(c) - d_mu(c)) / d_sigma(c);
+    }
+
+    return norm_X;
 }
 
 

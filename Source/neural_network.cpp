@@ -573,11 +573,14 @@ vector<mat> NeuralNetwork::backpropagate(const vector<mat>& Theta, const mat& X,
     {
         //--Θ⁽l⁾_ij := 0 ∀ j=0--//
         Theta_clone[l].col(0).zeros();
+        //cout << endl << "SET BIAS COL TO ZERO" << endl;
 
         //--D⁽l⁾ := (¹/m) Δ⁽l⁾ + λΘ⁽l⁾--//
         D[l] = ((1.0/m) * Delta[l]) + (d_lamda * Theta_clone[l]);
+        //cout << endl << "NORMALIZED AND REGULARIZED" << endl;
     }
 
+    //cout << endl << "RETURNING FROM backpropagate()" << endl;
     return D;
 }
 

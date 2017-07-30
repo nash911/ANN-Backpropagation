@@ -41,6 +41,13 @@ public:
     void createYMat(const char* const, const unsigned int&, const unsigned int&);
     void segmentDataSet(const double&, const double&);
 
+    vec Mean() const;
+    vec STDEV() const;
+    vec Min() const;
+    vec Max() const;
+    vec normalizeFeatures(const vec);
+    mat normalizeFeatures(const mat);
+
     unsigned int M() const;
     unsigned int N() const;
     unsigned int K() const;
@@ -58,6 +65,12 @@ public:
     mat d_Y_test;
 
     vec d_class;
+
+    vec d_mu;
+    vec d_sigma;
+
+    vec d_min;
+    vec d_max;
 };
 
 #endif // DATA_H
