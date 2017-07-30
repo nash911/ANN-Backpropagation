@@ -25,7 +25,7 @@
 #include "armadillo"
 
 #define ALPHA 0.01
-#define LAMDA 3.0
+#define LAMDA 10.0
 #define LEARNING_CURVE_DELTA 0.0001
 
 using namespace std;
@@ -44,6 +44,7 @@ public:
     vector<unsigned int> networkArchitecture(void) const;
     vec Layer(const unsigned int) const;
     vector<mat> Theta(void) const;
+    mat Theta(const unsigned int&) const;
     void printTheta(void) const;
 
     vec activation(const vec&, const unsigned int&);

@@ -43,6 +43,7 @@ NeuralNetwork::NeuralNetwork(const unsigned int& inputNeurons, const vector<unsi
     unsigned int rows = 0;
     unsigned int cols = 0;
     unsigned int layers = networkArchitecture().size();
+    double epsilon_init = 0.1;
 
     cout << endl << "Weight matrices dimensions:" << endl;
     for(unsigned int l = 0; l < (layers - 1); l++)
@@ -53,8 +54,9 @@ NeuralNetwork::NeuralNetwork(const unsigned int& inputNeurons, const vector<unsi
         cout << endl << "Layer " << l+1 <<  " weight matrix:    Rows: " << rows << "    Cols: " << cols << endl;
 
         //--Random initialization of Theta matrix Θ⁽l⁾--//
-        mat theta(rows, cols, fill::randu);
-        d_Theta.push_back(theta);
+        epsilon_init = sqrt(6.0) / sqrt(rows + cols);
+        mat theta(rows, cols, fill::randn);
+        d_Theta.push_back(theta * 2.0 * epsilon_init - epsilon_init);
     }
 }
 
@@ -175,6 +177,26 @@ vec NeuralNetwork::Layer(const unsigned int l) const
 vector<mat> NeuralNetwork::Theta(void) const
 {
     return d_Theta;
+}
+
+
+// mat Theta(const unsigned int&) const
+
+/// Returns a Theta matrices Θ⁽l⁾ of later l.
+/// @param l Layer of the network.
+
+mat NeuralNetwork::Theta(const unsigned int& l) const
+{
+    if(l >= networkArchitecture().size())
+    {
+        cerr << "ANN-Backpropagation Error: NeuralNetwork class." << endl
+             << "mat Theta(const unsigned int&) const method." << endl
+             << "Layer l: " << l << " should be < network architecture size: " << networkArchitecture().size()
+             << endl;
+
+        exit(1);
+    }
+    return d_Theta[l];
 }
 
 
