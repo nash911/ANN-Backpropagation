@@ -1,7 +1,7 @@
 == ANN-Backpropagation ==
 Author: Avinash Ranganath 
 E-mail: nash911@gmail.com
-https://avinashranganath.com
+http://avinashranganath.com
 License: GPLv3
 License URI: https://www.gnu.org/licenses/quick-guide-gplv3.html
 
